@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../services/api"; // 🧩 import API chung
-
+import axios from "axios";
+import AddUser from "./AddUser";
 
 function UserList() {
   const [users, setUsers] = useState([]);
+  const [editingUser, setEditingUser] = useState(null); // 🧩 user đang được chỉnh sửa
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  // 🧩 Lấy danh sách người dùng
+  // 🧩 Hàm tải danh sách người dùng
   const fetchUsers = async () => {
     try {
       const data = await getUsers();
@@ -19,16 +19,43 @@ function UserList() {
     }
   };
 
+  // 🧩 Lấy danh sách khi load
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   // 🧩 Xóa người dùng
-  const handleDelete = async (id) => {
+  const handleDelete = async (_id) => {
     if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
       try {
-        await deleteUser(id);
-        fetchUsers(); // Refresh danh sách
+        await deleteUser(_id);
+        setUsers((prev) => prev.filter((user) => user._id !== _id));
       } catch (error) {
         console.error("❌ Lỗi khi xóa người dùng:", error);
         alert("Không thể xóa người dùng. Vui lòng thử lại!");
       }
+    }
+  };
+
+  // 🧩 Bắt đầu chỉnh sửa
+  const handleEdit = (user) => {
+    setEditingUser(user._id);
+    setEditName(user.name);
+    setEditEmail(user.email);
+  };
+
+  // 🧩 Lưu chỉnh sửa
+  const handleSave = async (_id) => {
+    try {
+      await axios.put(`http://localhost:3000/users/${_id}`, {
+        name: editName,
+        email: editEmail,
+      });
+      setEditingUser(null);
+      fetchUsers(); // reload danh sách
+    } catch (error) {
+      console.error("❌ Lỗi khi cập nhật người dùng:", error);
+      alert("Không thể cập nhật người dùng. Vui lòng thử lại!");
     }
   };
 
@@ -44,6 +71,9 @@ function UserList() {
         textAlign: "left",
       }}
     >
+      {/* 🧩 Form thêm người dùng */}
+      <AddUser onUserAdded={fetchUsers} />
+
       <h2 style={{ color: "#028241", marginBottom: "15px" }}>
         👥 Danh sách người dùng
       </h2>
@@ -54,7 +84,7 @@ function UserList() {
         <ul style={{ listStyle: "none", padding: 0 }}>
           {users.map((u) => (
             <li
-              key={u.id}
+              key={u._id}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -66,25 +96,101 @@ function UserList() {
                 borderLeft: "5px solid #028241",
               }}
             >
-              <div>
-                <strong>{u.name}</strong>
-                <br />
-                <span style={{ color: "#555" }}>{u.email}</span>
-              </div>
-              <button
-                onClick={() => handleDelete(u.id)}
-                style={{
-                  background: "#ef4444",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "6px 12px",
-                  cursor: "pointer",
-                  transition: "0.2s",
-                }}
-              >
-                🗑 Xóa
-              </button>
+              {editingUser === u._id ? (
+                // 🧩 Chế độ chỉnh sửa
+                <div style={{ flex: 1, marginRight: "10px" }}>
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      marginBottom: "5px",
+                      padding: "5px",
+                      borderRadius: "6px",
+                      border: "1px solid #ccc",
+                    }}
+                  />
+                  <input
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "5px",
+                      borderRadius: "6px",
+                      border: "1px solid #ccc",
+                    }}
+                  />
+                </div>
+              ) : (
+                // 🧩 Chế độ xem
+                <div style={{ flex: 1 }}>
+                  <strong>{u.name}</strong>
+                  <br />
+                  <span style={{ color: "#555" }}>{u.email}</span>
+                </div>
+              )}
+
+
+              {editingUser === u._id ? (
+                <>
+                  <button
+                    onClick={() => handleSave(u._id)}
+                    style={{
+                      background: "#22c55e",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 12px",
+                      cursor: "pointer",
+                      marginRight: "5px",
+                    }}
+                  >
+                    💾 Lưu
+                  </button>
+                  <button
+                    onClick={() => setEditingUser(null)}
+                    style={{
+                      background: "#6b7280",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ❌ Hủy
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleEdit(u)}
+                    style={{
+                      background: "#0284c7",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 12px",
+                      cursor: "pointer",
+                      marginRight: "5px",
+                    }}
+                  >
+                    ✏️ Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(u._id)}
+                    style={{
+                      background: "#ef4444",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",padding: "6px 12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    🗑 Xóa
+                  </button>
+                </>
+              )}
             </li>
           ))}
         </ul>

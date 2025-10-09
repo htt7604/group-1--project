@@ -35,7 +35,7 @@ function App() {
         }}
       >
         {/* 🧩 Form thêm người dùng */}
-        <AddUser />
+        {/* <AddUser /> */}
 
         <hr style={{ margin: "30px 0" }} />
 

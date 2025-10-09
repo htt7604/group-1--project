@@ -1,30 +1,22 @@
-// 📁 src/services/api.js
+// src/services/api.js
+import axios from "axios";
 
-const BASE_URL = "http://localhost:3000/users";
+const API_URL = "http://localhost:3000"; // ⚙️ Backend server URL
 
-// Thêm người dùng mới
-export async function addUser(user) {
-  const response = await fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(user),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to add user");
-  }
-  return await response.json();
-}
-
-// Lấy danh sách người dùng
+// 🧩 Lấy danh sách người dùng
 export async function getUsers() {
-  const response = await fetch(BASE_URL);
-  if (!response.ok) throw new Error("Failed to fetch users");
-  return await response.json();
+  const res = await axios.get(`${API_URL}/users`);
+  return res.data;
 }
 
-// Xóa người dùng theo id
+// 🧩 Thêm người dùng mới
+export async function addUser(user) {
+  const res = await axios.post(`${API_URL}/users`, user);
+  return res.data;
+}
+
+// 🧩 Xóa người dùng theo ID
 export async function deleteUser(id) {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
-  if (!response.ok) throw new Error("Failed to delete user");
-  return await response.json();
+  const res = await axios.delete(`${API_URL}/users/${id}`);
+  return res.data;
 }
