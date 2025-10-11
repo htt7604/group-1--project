@@ -1,16 +1,22 @@
-// Đây là ví dụ đơn giản, bạn cần chỉnh lại cho phù hợp với backend của bạn
+// src/services/api.js
+import axios from "axios";
 
+const API_URL = "http://localhost:3000"; // ⚙️ Backend server URL
+
+// 🧩 Lấy danh sách người dùng
 export async function getUsers() {
-  // ...gọi API backend để lấy danh sách người dùng...
-  // return fetch(...);
+  const res = await axios.get(`${API_URL}/users`);
+  return res.data;
 }
 
+// 🧩 Thêm người dùng mới
 export async function addUser(user) {
-  // ...gọi API backend để thêm người dùng...
-  // return fetch(...);
+  const res = await axios.post(`${API_URL}/users`, user);
+  return res.data;
 }
 
+// 🧩 Xóa người dùng theo ID
 export async function deleteUser(id) {
-  // ...gọi API backend để xóa người dùng...
-  // return fetch(...);
+  const res = await axios.delete(`${API_URL}/users/${id}`);
+  return res.data;
 }

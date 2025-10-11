@@ -130,7 +130,10 @@ function UserList() {
                 </div>
               )}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/backend
               {editingUser === u._id ? (
                 <>
                   <button
@@ -183,7 +186,12 @@ function UserList() {
                       background: "#ef4444",
                       color: "white",
                       border: "none",
+<<<<<<< HEAD
                       borderRadius: "6px",padding: "6px 12px",
+=======
+                      borderRadius: "6px",
+                      padding: "6px 12px",
+>>>>>>> origin/backend
                       cursor: "pointer",
                     }}
                   >
