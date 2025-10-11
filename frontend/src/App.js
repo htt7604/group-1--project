@@ -1,7 +1,7 @@
 import React from "react";
 import AddUser from "./components/AddUser";
 import UserList from "./components/UserList";
-
+{/* Day la Ho Tan Tai sua App.js */}
 function App() {
   return (
     <div
@@ -35,7 +35,7 @@ function App() {
         }}
       >
         {/* 🧩 Form thêm người dùng */}
-        <AddUser />
+        {/* <AddUser /> */}
 
         <hr style={{ margin: "30px 0" }} />
 

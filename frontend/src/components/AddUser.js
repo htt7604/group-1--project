@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { addUser } from "../services/api"; // 🧩 import từ api.js
-
-
+import { addUser } from "../services/api";
 
 function AddUser({ onUserAdded }) {
   const [name, setName] = useState("");
@@ -11,22 +9,16 @@ function AddUser({ onUserAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      alert("Tên không được để trống!");
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      alert("Email không hợp lệ!");
-      return;
-    }
+    if (!name.trim()) return alert("⚠️ Tên không được để trống!");
+    if (!/\S+@\S+\.\S+/.test(email)) return alert("⚠️ Email không hợp lệ!");
 
     try {
       setLoading(true);
-      await addUser({ name, email }); // 🧩 gọi API backend
+      await addUser({ name, email });
       setName("");
       setEmail("");
-      onUserAdded && onUserAdded(); // refresh danh sách
+      alert("✅ Thêm người dùng thành công!");
+      if (onUserAdded) onUserAdded(); // 🔁 Gọi callback để load lại danh sách
     } catch (error) {
       console.error("❌ Lỗi khi thêm người dùng:", error);
       alert("Không thể thêm người dùng. Vui lòng thử lại!");
