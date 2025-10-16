@@ -162,21 +162,7 @@ app.delete("/users/:id", async (req, res) => {
     console.error("❌ Lỗi khi xóa người dùng:", error);
     res.status(500).json({ message: "Lỗi server khi xóa người dùng" });
   }
-<<<<<<< HEAD
-});
 
-//sua nguoi dung
-app.put("/users/:id", async (req, res) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.json(updatedUser);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-=======
 });
 //sua nguoi dung
 app.put("/users/:id", async (req, res) => {
@@ -190,15 +176,10 @@ app.put("/users/:id", async (req, res) => {
   }
 });
 
->>>>>>> origin/backend
 
 // =============================
 // 🚀 Khởi động server
 // =============================
 app.listen(PORT, () =>
   console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`)
-<<<<<<< HEAD
 );
-=======
-);
->>>>>>> origin/backend
