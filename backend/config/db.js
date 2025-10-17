@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const MONGO_URI = 'mongodb+srv://test_db_user:8YaOEQKaRd4WUBeF@groupdb.p3uayff.mongodb.net/?retryWrites=true&w=majority&appName=groupDB';
+    const MONGO_URI = 'mongodb+srv://loi224453_db_user:hZWnSsuzolQi89LA@groupdb.lzoxwbo.mongodb.net/?retryWrites=true&w=majority&appName=groupDB';
 
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
