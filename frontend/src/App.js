@@ -1,6 +1,7 @@
 import React from "react";
 import AddUser from "./components/AddUser";
 import UserList from "./components/UserList";
+// Chinh sua tu forntend Loi sua App.js
 {/* Day la Ho Tan Tai sua App.js */}
 function App() {
   return (

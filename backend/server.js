@@ -198,14 +198,80 @@ const app = express();
 app.use(cors()); // ⚡ CHO PHÉP FRONTEND TRUY CẬP
 app.use(express.json());
 
-connectDB();
+// 🌐 Kết nối MongoDB Atlas
+const mongoURI =
+  "mongodb+srv://loi224453_db_user:hZWnSsuzolQi89LA@groupdb.lzoxwbo.mongodb.net/groupDB?retryWrites=true&w=majority";
 
-// Import route
-const userRoutes = require('./routes/user');
-app.use('/api/auth', authRoutes); // Thêm tiền tố /api/auth cho các route xác thực
+mongoose
+  .connect(mongoURI)
+  .then(() => console.log("✅ Đã kết nối MongoDB Atlas thành công"))
+  .catch((err) => console.error("❌ Lỗi kết nối MongoDB:", err));
 
-// Sử dụng route có tiền tố /api
-app.use('/api', userRoutes);
+// 🧩 Định nghĩa Schema & Model
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const User = mongoose.model("User", userSchema);
+
+// =============================
+// 📌 API ROUTES
+// =============================
+
+// Lấy danh sách người dùng
+app.get("/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy danh sách người dùng:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy danh sách" });
+  }
+});
+
+// Thêm người dùng mới
+app.post("/users", async (req, res) => {
+  try {
+    const user = new User(req.body);
+    await user.save();
+    res.status(201).json(user);
+  } catch (error) {
+    console.error("❌ Lỗi khi thêm người dùng:", error);
+    res.status(400).json({ message: "Dữ liệu không hợp lệ" });
+  }
+});
+
+// Xóa người dùng theo ID
+app.delete("/users/:id", async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng để xóa" });
+    }
+    res.json({ message: "✅ Xóa người dùng thành công" });
+  } catch (error) {
+    console.error("❌ Lỗi khi xóa người dùng:", error);
+    res.status(500).json({ message: "Lỗi server khi xóa người dùng" });
+  }
+
+});
+//sua nguoi dung
+app.put("/users/:id", async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+
+// =============================
+// 🚀 Khởi động server
+// =============================
+app.listen(PORT, () =>
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`)
+);
