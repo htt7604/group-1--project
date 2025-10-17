@@ -181,7 +181,6 @@ function UserList() {
                       background: "#ef4444",
                       color: "white",
                       border: "none",
-                      borderRadius: "6px",padding: "6px 12px",
                       borderRadius: "6px",
                       padding: "6px 12px",
                       cursor: "pointer",

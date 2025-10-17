@@ -1,49 +1,27 @@
-import React from "react";
-import AddUser from "./components/AddUser";
-import UserList from "./components/UserList";
-// Chinh sua tu forntend Loi sua App.js
-{/* Day la Ho Tan Tai sua App.js */}
+// // frontend/src/App.js
+// cd frontend
+// npm install react-router-dom
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar'; // <-- Import Navbar
+import Login from './components/Login';
+import Signup from './components/Signup';
+//import Profile from './components/Profile';
+// ... import các component khác
+
 function App() {
   return (
-    <div
-      style={{
-        padding: "40px",
-        fontFamily: "Segoe UI, sans-serif",
-        background: "#f8fafc",
-        minHeight: "100vh",
-      }}
-    >
-      <h1
-        style={{
-          textAlign: "center",
-          color: "#028241",
-          marginBottom: "40px",
-          fontSize: "2.5rem",
-          fontWeight: "bold",
-        }}
-      >
-        🌿 Quản lý người dùng
-      </h1>
-
-      <div
-        style={{
-          maxWidth: "800px",
-          margin: "0 auto",
-          background: "white",
-          borderRadius: "16px",
-          padding: "30px",
-          boxShadow: "0 6px 15px rgba(0,0,0,0.1)",
-        }}
-      >
-        {/* 🧩 Form thêm người dùng */}
-        {/* <AddUser /> */}
-
-        <hr style={{ margin: "30px 0" }} />
-
-        {/* 👥 Danh sách người dùng */}
-        <UserList />
+    <Router>
+      <Navbar /> {/* <-- Đặt Navbar ở đây để nó luôn hiển thị */}
+      <div className="container">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          {/* <Route path="/profile" element={<Profile />} /> */}
+          {/* Các Route khác */}
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 
