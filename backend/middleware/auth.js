@@ -1,0 +1,31 @@
+// backend/middleware/auth.js
+const jwt = require('jsonwebtoken');
+
+// Biến cho JWT
+const JWT_SECRET = "DayLaMotChuoiBiMatSieuDaiVaKhongTheDoanDuoc123!@#";
+
+module.exports = function(req, res, next) {
+    // Lấy token từ header của request
+    const token = req.header('x-auth-token');
+
+    // 1. Kiểm tra xem có token không
+    if (!token) {
+        return res.status(401).json({ message: 'Không có token, truy cập bị từ chối.' });
+    }
+
+    // 2. Xác thực token
+    try {
+        // Giải mã token bằng chuỗi bí mật
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        // Gắn thông tin người dùng (payload) từ token vào đối tượng request
+        // để các hàm controller sau có thể sử dụng (ví dụ: req.user.id)
+        req.user = decoded.user; 
+        
+        // Chuyển sang middleware hoặc controller tiếp theo
+        next();
+    } catch (err) {
+        // Nếu token không hợp lệ (hết hạn, giả mạo...)
+        res.status(401).json({ message: 'Token không hợp lệ.' });
+    }
+};

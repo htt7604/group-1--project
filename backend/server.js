@@ -306,24 +306,60 @@
 
 
 
+// // backend/server.js
+// const express = require('express');
+// const cors = require('cors');
+// const connectDB = require('./config/db');
+// const authRoutes = require('./routes/auth');
+// const app = express();
+
+// app.use(cors()); // ⚡ CHO PHÉP FRONTEND TRUY CẬP
+// app.use(express.json());
+
+// connectDB();
+
+// // Import route
+// const userRoutes = require('./routes/user');
+// app.use('/api/auth', authRoutes); // Thêm tiền tố /api/auth cho các route xác thực
+
+// // Sử dụng route có tiền tố /api
+// app.use('/api', userRoutes);
+
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
 // backend/server.js
+
+// Import các thư viện cần thiết
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config(); // 🔑 Nạp các biến môi trường từ file .env
+
+// Import các module tự viết
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+
+// Khởi tạo ứng dụng Express
 const app = express();
 
-app.use(cors()); // ⚡ CHO PHÉP FRONTEND TRUY CẬP
-app.use(express.json());
+// --- Cấu hình Middleware ---
+app.use(cors()); // Cho phép cross-origin requests (để React có thể gọi API)
+app.use(express.json()); // Cho phép server đọc dữ liệu JSON từ body của request
 
+// --- Kết nối Database ---
 connectDB();
 
-// Import route
-const userRoutes = require('./routes/user');
-app.use('/api/auth', authRoutes); // Thêm tiền tố /api/auth cho các route xác thực
+// --- Cấu hình Routes ---
+// Tất cả các route liên quan đến xác thực (đăng ký, đăng nhập) sẽ có tiền tố /api/auth
+app.use('/api/auth', authRoutes);
 
-// Sử dụng route có tiền tố /api
-app.use('/api', userRoutes);
+// ❗️ SỬA LẠI DÒNG NÀY ❗️
+// Tất cả các route liên quan đến người dùng (lấy danh sách, profile) sẽ có tiền tố /api/users
+app.use('/api/users', userRoutes);
 
+
+// --- Khởi động Server ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server đang chạy trên cổng ${PORT}`));
