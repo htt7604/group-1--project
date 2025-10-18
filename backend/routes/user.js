@@ -58,34 +58,63 @@
 
 
 
+// // backend/routes/user.js
+// const express = require('express');
+// const router = express.Router();
+// const userController = require('../controllers/userController');
+// const auth = require('../middleware/auth'); // <-- Import middleware xác thực
+
+// // --- ROUTE MỚI: QUẢN LÝ PROFILE CÁ NHÂN ---
+// // Các route này yêu cầu người dùng phải đăng nhập (có token hợp lệ)
+// // Middleware 'auth' sẽ được chạy trước các hàm controller
+
+// // @route   GET api/users/profile
+// // @desc    Lấy thông tin profile của người dùng đang đăng nhập
+// // @access  Private
+// router.get('/profile', auth, userController.getProfile);
+
+// // @route   PUT api/users/profile
+// // @desc    Cập nhật thông tin profile của người dùng đang đăng nhập
+// // @access  Private
+// router.put('/profile', auth, userController.updateProfile);
+
+
+// // --- CÁC ROUTE CŨ: CRUD USERS (SAU NÀY SẼ DÀNH CHO ADMIN) ---
+// // Hiện tại các route này chưa được bảo vệ, bất kỳ ai cũng có thể gọi
+// // Trong Hoạt động 3, chúng ta sẽ thêm middleware để chỉ Admin mới có quyền
+
+// router.get('/', userController.getUsers); // Thay '/users' thành '/' vì tiền tố /api/users đã có ở server.js
+// router.post('/', userController.createUser);
+// router.put('/:id', userController.updateUser);
+// router.delete('/:id', userController.deleteUser);
+
+// module.exports = router;
+
+
+
 // backend/routes/user.js
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const auth = require('../middleware/auth'); // <-- Import middleware xác thực
 
-// --- ROUTE MỚI: QUẢN LÝ PROFILE CÁ NHÂN ---
-// Các route này yêu cầu người dùng phải đăng nhập (có token hợp lệ)
-// Middleware 'auth' sẽ được chạy trước các hàm controller
+// Import các middleware
+const auth = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 
-// @route   GET api/users/profile
-// @desc    Lấy thông tin profile của người dùng đang đăng nhập
-// @access  Private
+// ... (các route /profile vẫn giữ nguyên)
 router.get('/profile', auth, userController.getProfile);
-
-// @route   PUT api/users/profile
-// @desc    Cập nhật thông tin profile của người dùng đang đăng nhập
-// @access  Private
 router.put('/profile', auth, userController.updateProfile);
 
+// --- CÁC ROUTE DÀNH CHO ADMIN ---
+// Áp dụng cả 2 middleware: phải đăng nhập VÀ phải là admin
+// [auth, isAdmin] -> Express sẽ chạy tuần tự từ trái qua phải
 
-// --- CÁC ROUTE CŨ: CRUD USERS (SAU NÀY SẼ DÀNH CHO ADMIN) ---
-// Hiện tại các route này chưa được bảo vệ, bất kỳ ai cũng có thể gọi
-// Trong Hoạt động 3, chúng ta sẽ thêm middleware để chỉ Admin mới có quyền
+// Lấy danh sách tất cả người dùng
+router.get('/', [auth, isAdmin], userController.getUsers);
 
-router.get('/', userController.getUsers); // Thay '/users' thành '/' vì tiền tố /api/users đã có ở server.js
-router.post('/', userController.createUser);
-router.put('/:id', userController.updateUser);
-router.delete('/:id', userController.deleteUser);
+// Xóa một người dùng theo ID
+router.delete('/:id', [auth, isAdmin], userController.deleteUser);
+
+// (Các route POST và PUT/:id có thể giữ lại hoặc bảo vệ tương tự nếu cần)
 
 module.exports = router;
