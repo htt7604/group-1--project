@@ -35,7 +35,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import Profile from './components/Profile';
 // frontend/src/App.js
-// import AdminDashboard from './components/AdminDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 // ... import các component khác
 
@@ -48,7 +48,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
-          {/* <Route path="/admin/users" element={<AdminDashboard />} /> */}
+          <Route path="/admin/users" element={<AdminDashboard />} />
           {/* Các Route khác */}
         </Routes>
       </div>
