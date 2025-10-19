@@ -1,28 +1,31 @@
-// components/Profile.jsx
+//4 update avatar
+// frontend/src/components/Profile.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './styles.css';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    
+    // State cho chức năng upload avatar
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProfile = async () => {
             const token = localStorage.getItem('token');
+            
             if (!token) {
-                // Nếu không có token, chuyển về trang đăng nhập
+                alert('Vui lòng đăng nhập để truy cập trang này.');
                 navigate('/login');
                 return;
             }
 
-            setError('');
-            setLoading(true);
             try {
                 const res = await axios.get('http://localhost:3000/api/users/profile', {
                     headers: { 'x-auth-token': token }
@@ -31,7 +34,10 @@ const Profile = () => {
                 setName(res.data.name);
             } catch (err) {
                 console.error('Lỗi lấy profile:', err);
-                setError(err?.response?.data?.message ?? 'Không thể tải thông tin người dùng.');
+                setError('Không thể tải thông tin. Vui lòng đăng nhập lại.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userRole');
+                navigate('/login');
             } finally {
                 setLoading(false);
             }
@@ -39,78 +45,88 @@ const Profile = () => {
         fetchProfile();
     }, [navigate]);
 
-    const onSubmit = async e => {
+    // Hàm xử lý cập nhật tên
+    const handleNameUpdate = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
         const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login');
-            return;
-        }
         try {
             const res = await axios.put('http://localhost:3000/api/users/profile', { name }, {
                 headers: { 'x-auth-token': token }
             });
             setUser(res.data);
-            setSuccess('Cập nhật thành công!');
+            alert('Cập nhật tên thành công!');
         } catch (err) {
-            console.error('Lỗi cập nhật:', err);
-            setError(err?.response?.data?.message ?? 'Cập nhật thất bại. Vui lòng thử lại.');
+            console.error('Lỗi cập nhật tên:', err);
+            alert('Cập nhật tên thất bại.');
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userRole');
-        navigate('/login');
+    // Hàm xử lý upload avatar
+    const handleAvatarUpload = async (e) => {
+        e.preventDefault();
+        if (!file) {
+            alert('Vui lòng chọn một file ảnh!');
+            return;
+        }
+        setUploading(true);
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.put('http://localhost:3000/api/users/profile/avatar', formData, {
+                headers: {
+                    'x-auth-token': token,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            alert(res.data.message);
+            // Cập nhật lại state user để hiển thị avatar mới
+setUser(prevUser => ({ ...prevUser, avatar: res.data.avatarUrl }));
+        } catch (err) {
+            alert(err.response?.data?.message || 'Upload thất bại.');
+        } finally {
+            setUploading(false);
+            setFile(null); // Reset file input
+        }
     };
 
-    if (loading) return <div style={{ textAlign: 'center', marginTop: 40 }}>Đang tải...</div>;
+
+    if (loading) return <div>Đang tải...</div>;
+    if (error) return <div style={{ color: 'red' }}>{error}</div>;
+    if (!user) return <div>Không có thông tin người dùng.</div>;
 
     return (
-        <div className="form-card" style={{ maxWidth: 520 }}>
-            <form className="auth-form" onSubmit={onSubmit}>
-                <h2 className="form-title">Trang cá nhân</h2>
-
-                {error && <div className="error-text" style={{ marginBottom: 8 }}>{error}</div>}
-                {success && <div style={{ color: 'green', fontWeight: 600, marginBottom: 8 }}>{success}</div>}
-
-                <label style={{ fontWeight: 700, fontSize: 14 }}>Email</label>
-                <input
-                    className="input"
-                    type="email"
-                    value={user?.email ?? ''}
-                    readOnly
-                    style={{ backgroundColor: '#f3f4f6' }}
+        <div>
+            <h2>Trang cá nhân</h2>
+            
+            {/* Phần hiển thị và upload avatar */}
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                <img 
+                    src={user.avatar} 
+                    alt="Avatar" 
+                    width="150" 
+                    height="150"
+                    style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid #ddd' }} 
                 />
-
-                <label style={{ fontWeight: 700, fontSize: 14 }}>Tên</label>
-                <input
-                    className="input"
-                    type="text"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    required
-                />
-
-                <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
-                    <button className="btn btn-primary" type="submit">Cập nhật</button>
-                    <button
-                        type="button"
-                        className="btn btn-ghost"
-                        onClick={handleLogout}
-                        style={{ alignSelf: 'center' }}
-                    >
-                        Đăng xuất
+                <form onSubmit={handleAvatarUpload} style={{ marginTop: '10px' }}>
+                    <label>Thay đổi ảnh đại diện:</label>
+                    <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="image/*" />
+                    <button type="submit" disabled={uploading}>
+                        {uploading ? 'Đang tải lên...' : 'Tải lên'}
                     </button>
-                </div>
+                </form>
+            </div>
+            
+            <hr />
 
-                {user?.role && (
-                    <div style={{ marginTop: 10, color: '#6b7280', fontSize: 13 }}>
-                        Vai trò: <strong style={{ color: '#0f172a' }}>{user.role}</strong>
-                    </div>
-                )}
+            {/* Phần thông tin và cập nhật tên */}
+            <p><strong>Email:</strong> {user.email}</p>
+            <form onSubmit={handleNameUpdate}>
+                <label><strong>Tên:</strong></label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required />
+                <button type="submit">Cập nhật tên</button>
             </form>
         </div>
     );
