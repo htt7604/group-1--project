@@ -14,6 +14,7 @@
 // module.exports = router;
 
 // routes/auth.js
+const authController = require('../controllers/authController');
 const express = require('express');
 const router = express.Router();
 const {
@@ -42,4 +43,5 @@ router.post('/refresh', refreshToken);
 // 🚪 Đăng xuất (xóa refresh token)
 router.post('/logout', logout);
 
+router.post('/refresh', authController.refreshToken);
 module.exports = router;

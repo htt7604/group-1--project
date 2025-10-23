@@ -30,22 +30,47 @@
 //     }
 // };
 
+// const jwt = require('jsonwebtoken');
+// const JWT_SECRET = "DayLaMotChuoiBiMatSieuDaiVaKhongTheDoanDuoc123!@#";
+
+// module.exports = function (req, res, next) {
+//   const authHeader = req.headers['authorization'];
+//   const token = authHeader && authHeader.split(' ')[1]; // "Bearer <token>"
+
+//   if (!token) {
+//     return res.status(401).json({ message: 'Không có token, truy cập bị từ chối.' });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, JWT_SECRET);
+//     req.user = decoded.user;
+//     next();
+//   } catch (err) {
+//     return res.status(403).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
+//   }
+// };
+
+
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = "DayLaMotChuoiBiMatSieuDaiVaKhongTheDoanDuoc123!@#";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = function (req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // "Bearer <token>"
+    const authHeader = req.header('authorization');
 
-  if (!token) {
-    return res.status(401).json({ message: 'Không có token, truy cập bị từ chối.' });
-  }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Không có token hoặc định dạng token sai, truy cập bị từ chối.' });
+    }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded.user;
-    next();
-  } catch (err) {
-    return res.status(403).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
-  }
+    try {
+        const token = authHeader.split(' ')[1];
+        
+        // ✅ SỬA LẠI Ở ĐÂY: Gán thẳng kết quả giải mã vào req.user
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.user = decoded; // Bây giờ req.user sẽ là { id: "...", role: "..." }
+        
+        next();
+    } catch (err) {
+        // Trả về lỗi 401 để frontend có thể kích hoạt refresh token
+        return res.status(401).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
+    }
 };
