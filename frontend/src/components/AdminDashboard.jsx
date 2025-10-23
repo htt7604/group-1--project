@@ -1,34 +1,40 @@
-//4
-//frontend/src/components/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+// ✅ 1. Import 'api' instance đã được cấu hình, thay vì 'axios'
+import api from '../api';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // ✅ 2. Thêm kiểm tra quyền Admin ngay khi component được tải
+        const userRole = localStorage.getItem('userRole');
+        if (userRole !== 'admin') {
+            alert('Bạn không có quyền truy cập trang này.');
+            navigate('/profile'); // Chuyển hướng về trang profile nếu không phải admin
+        } else {
+            fetchUsers();
+        }
+    }, [navigate]);
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:3000/api/users', {
-                headers: { 'x-auth-token': token }
-            });
+            // ✅ 3. Dùng 'api.get' và không cần tự thêm header
+            // Interceptor trong 'api.js' sẽ tự động đính kèm 'accessToken'
+            const res = await api.get('/users');
             setUsers(res.data);
         } catch (err) {
+            // Interceptor đã xử lý lỗi 401, chỉ hiển thị các lỗi khác
             alert(err.response?.data?.message || 'Không thể tải danh sách người dùng.');
         }
     };
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
     const handleDelete = async (userId) => {
         if (window.confirm('Bạn có chắc chắn muốn XÓA người dùng này không?')) {
             try {
-                const token = localStorage.getItem('token');
-                await axios.delete(`http://localhost:3000/api/users/${userId}`, {
-                    headers: { 'x-auth-token': token }
-                });
+                // ✅ 4. Dùng 'api.delete' và không cần tự thêm header
+                await api.delete(`/users/${userId}`);
                 alert('Xóa thành công!');
                 fetchUsers(); // Tải lại danh sách
             } catch (err) {
@@ -37,13 +43,12 @@ const AdminDashboard = () => {
         }
     };
 
-    // ✅ HÀM MỚI: Xử lý việc reset mật khẩu cho người dùng
     const handleResetPassword = async (email) => {
         if (window.confirm(`Bạn có chắc chắn muốn gửi email RESET MẬT KHẨU đến ${email} không?`)) {
             try {
-                // Gọi đến API "forgot-password" đã có sẵn
-                const res = await axios.post('http://localhost:3000/api/auth/forgot-password', { email });
-                alert(res.data.message); // Hiển thị thông báo thành công từ server
+                // ✅ 5. Dùng 'api.post'
+                const res = await api.post('/auth/forgot-password', { email });
+                alert(res.data.message);
             } catch (err) {
                 alert(err.response?.data?.message || 'Gửi email thất bại.');
             }
@@ -68,11 +73,9 @@ const AdminDashboard = () => {
                             <td>{user.name}</td>
                             <td>{user.email}</td>
                             <td>{user.role}</td>
-                            <td>
-                                <button onClick={() => handleDelete(user._id)} style={{marginRight: '5px', backgroundColor: '#dc3545'}}>Xóa</button>
-                                {/* ✅ THÊM NÚT MỚI VÀO ĐÂY */}
-                                <button onClick={() => handleResetPassword(user.email)} style={{backgroundColor: '#ffc107'}}>Reset Mật khẩu</button>
-</td>
+                            <td><button onClick={() => handleDelete(user._id)} style={{marginRight: '5px', backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', cursor: 'pointer'}}>Xóa</button>
+                                <button onClick={() => handleResetPassword(user.email)} style={{backgroundColor: '#ffc107', border: 'none', padding: '5px 10px', cursor: 'pointer'}}>Reset Mật khẩu</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
