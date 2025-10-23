@@ -120,6 +120,39 @@
 // module.exports = router;
 
 
+// //4 update avatar
+// // backend/routes/user.js
+// const express = require('express');
+// const router = express.Router();
+// const userController = require('../controllers/userController');
+
+// // Import các middleware
+// const auth = require('../middleware/auth');
+// const isAdmin = require('../middleware/isAdmin');
+// const upload = require('../middleware/upload'); // Import middleware upload
+
+// // ... (các route /profile vẫn giữ nguyên)
+// router.get('/profile', auth, userController.getProfile);
+// router.put('/profile', auth, userController.updateProfile);
+
+// // @route   PUT api/users/profile/avatar
+// // @desc    Cập nhật ảnh đại diện
+// // @access  Private
+// router.put('/profile/avatar', auth, upload.single('avatar'), userController.updateAvatar);
+
+// // --- CÁC ROUTE DÀNH CHO ADMIN ---
+// // Áp dụng cả 2 middleware: phải đăng nhập VÀ phải là admin
+// // [auth, isAdmin] -> Express sẽ chạy tuần tự từ trái qua phải
+
+// // Lấy danh sách tất cả người dùng
+// router.get('/', [auth, isAdmin], userController.getUsers);
+
+// // Xóa một người dùng theo ID
+// router.delete('/:id', [auth, isAdmin], userController.deleteUser);
+
+// // (Các route POST và PUT/:id có thể giữ lại hoặc bảo vệ tương tự nếu cần)
+
+// module.exports = router;
 //4 update avatar
 // backend/routes/user.js
 const express = require('express');
