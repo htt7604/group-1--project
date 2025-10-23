@@ -8,6 +8,7 @@ import Signup from './components/Signup';
 import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import ProtectedRoute from './components/ProtectedRoute';
 // frontend/src/App.js
 import AdminDashboard from './components/AdminDashboard';
 
@@ -26,6 +27,11 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           {/* Các Route khác */}
+          <Route path="/" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
         </Routes>
       </div>
     </Router>

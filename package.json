@@ -18,9 +18,13 @@
   },
   "homepage": "https://github.com/htt7604/group-1--project#readme",
   "dependencies": {
+    "@reduxjs/toolkit": "^2.9.2",
+    "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongoose": "^8.19.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.9.4"
   }
 }
