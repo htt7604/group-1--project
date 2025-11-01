@@ -74,3 +74,35 @@ module.exports = function (req, res, next) {
         return res.status(401).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
     }
 };
+
+
+
+//b6 hd1
+// backend/middleware/auth.js
+// const jwt = require('jsonwebtoken');
+
+module.exports = function(req, res, next) {
+    // Lấy token từ header của request
+    const token = req.header('x-auth-token');
+
+    // 1. Kiểm tra xem có token không
+    if (!token) {
+        return res.status(401).json({ message: 'Không có token, truy cập bị từ chối.' });
+    }
+
+    // 2. Xác thực token
+    try {
+        // ✅ CẢI TIẾN: Lấy JWT_SECRET từ biến môi trường để đảm bảo an toàn và nhất quán
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // ✅ SỬA LỖI: Gán toàn bộ payload đã giải mã vào req.user
+        // Giờ đây, req.user sẽ là object { id: '...', role: '...' }
+        req.user = decoded; 
+        
+        // Chuyển sang middleware hoặc controller tiếp theo
+        next();
+    } catch (err) {
+        // Nếu token không hợp lệ (hết hạn, giả mạo...)
+        res.status(401).json({ message: 'Token không hợp lệ.' });
+    }
+};

@@ -205,86 +205,240 @@
 // //     // ... (phần return JSX)
 // // };
 
+// import React, { useState, useEffect } from 'react';
+// // ✅ 1. Import 'api' instance đã được cấu hình
+// import api from '../api'; 
+// import { useNavigate } from 'react-router-dom';
+
+// const Profile = () => {
+//     const [user, setUser] = useState(null);
+//     const [name, setName] = useState('');
+//     const [loading, setLoading] = useState(true);
+//     const [error, setError] = useState('');
+    
+//     const [file, setFile] = useState(null);
+//     const [uploading, setUploading] = useState(false);
+//     const navigate = useNavigate();
+
+//     useEffect(() => {
+//         const fetchProfile = async () => {
+//             try {
+//                 // ✅ 2. Dùng 'api.get'. Interceptor sẽ tự động đính kèm 'accessToken'
+//                 const res = await api.get('/users/profile'); 
+                
+//                 setUser(res.data);
+//                 setName(res.data.name);
+//             } catch (err) {
+//                 // Interceptor đã tự xử lý lỗi 401 và chuyển hướng nếu cần
+//                 console.error('Lỗi khi tải profile:', err);
+//                 setError('Không thể tải thông tin người dùng.');
+//             } finally {
+//                 setLoading(false);
+//             }
+//         };
+//         fetchProfile();
+//     }, []); // Bỏ 'navigate' khỏi dependency array vì nó không được dùng trong logic này
+
+//     // Hàm cập nhật tên
+//     const handleNameUpdate = async (e) => {
+//         e.preventDefault();
+//         try {
+//             // ✅ 3. Dùng 'api.put'
+//             const res = await api.put('/users/profile', { name });
+//             setUser(res.data);
+//             alert('Cập nhật tên thành công!');
+//         } catch (err) {
+//             alert(err.response?.data?.message || 'Cập nhật tên thất bại.');
+//         }
+//     };
+
+//     // Hàm upload avatar
+//     const handleAvatarUpload = async (e) => {
+//         e.preventDefault();
+//         if (!file) return alert('Vui lòng chọn ảnh!');
+//         setUploading(true);
+//         const formData = new FormData();
+//         formData.append('avatar', file);
+
+//         try {
+//             // ✅ 4. Dùng 'api.put' và chỉ cần set Content-Type
+//             const res = await api.put('/users/profile/avatar', formData, {
+//                 headers: { 'Content-Type': 'multipart/form-data' },
+//             });
+//             setUser(prev => ({ ...prev, avatar: res.data.avatarUrl }));
+//             alert(res.data.message);
+//         } catch (err) {
+//             alert(err.response?.data?.message || 'Upload thất bại.');
+//         } finally {
+//             setUploading(false);
+//         }
+//     };
+
+//     if (loading) return <div>Đang tải...</div>;
+//     if (error) return <div style={{ color: 'red' }}>{error}</div>;
+//     if (!user) return <div>Không có thông tin người dùng.</div>;
+
+//     // ... (Phần JSX return giữ nguyên như cũ)
+//     return (
+//         <div>
+//             <h2>Trang cá nhân</h2>
+//             <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+//                 <img 
+//                     src={user.avatar}alt="Avatar" 
+//                     width="150" 
+//                     height="150"
+//                     style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid #ddd' }} 
+//                 />
+//                 <form onSubmit={handleAvatarUpload} style={{ marginTop: '10px' }}>
+//                     <label>Thay đổi ảnh đại diện:</label>
+//                     <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="image/*" />
+//                     <button type="submit" disabled={uploading}>
+//                         {uploading ? 'Đang tải lên...' : 'Tải lên'}
+//                     </button>
+//                 </form>
+//             </div>
+//             <hr />
+//             <p><strong>Email:</strong> {user.email}</p>
+//             <form onSubmit={handleNameUpdate}>
+//                 <label><strong>Tên:</strong></label>
+//                 <input type="text" value={name} onChange={e => setName(e.target.value)} required />
+//                 <button type="submit">Cập nhật tên</button>
+//             </form>
+//         </div>
+//     );
+// };
+
+// export default Profile;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//b6 hd1
+// frontend/src/components/Profile.jsx
+
 import React, { useState, useEffect } from 'react';
-// ✅ 1. Import 'api' instance đã được cấu hình
-import api from '../api'; 
 import { useNavigate } from 'react-router-dom';
+// ✅ 1. Import axiosInstance thay vì axios thường
+import axiosInstance from '../api/axiosInstance';
 
 const Profile = () => {
-    const [user, setUser] = useState(null);
-    const [name, setName] = useState('');
+    // ✅ 2. Lấy thông tin user ban đầu từ localStorage để UI hiển thị ngay lập tức
+    const initialUser = JSON.parse(localStorage.getItem('user'));
+    
+    const [user, setUser] = useState(initialUser);
+    const [name, setName] = useState(initialUser?.name || '');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Nếu không có user ban đầu, chuyển hướng luôn
+        if (!initialUser) {
+            alert('Vui lòng đăng nhập để truy cập trang này.');
+            navigate('/login');
+            return;
+        }
+
         const fetchProfile = async () => {
             try {
-                // ✅ 2. Dùng 'api.get'. Interceptor sẽ tự động đính kèm 'accessToken'
-                const res = await api.get('/users/profile'); 
-                
+                // ✅ 3. Dùng axiosInstance, không cần get token hay set header thủ công
+                const res = await axiosInstance.get('/users/profile');
                 setUser(res.data);
                 setName(res.data.name);
+                // Cập nhật lại user trong localStorage nếu có thay đổi từ server
+                localStorage.setItem('user', JSON.stringify(res.data));
             } catch (err) {
-                // Interceptor đã tự xử lý lỗi 401 và chuyển hướng nếu cần
-                console.error('Lỗi khi tải profile:', err);
-                setError('Không thể tải thông tin người dùng.');
+                console.error('Lỗi lấy profile:', err);
+                // axiosInstance sẽ tự động xử lý việc logout nếu refresh token thất bại
+                setError('Không thể tải thông tin mới nhất.');
             } finally {
                 setLoading(false);
             }
         };
         fetchProfile();
-    }, []); // Bỏ 'navigate' khỏi dependency array vì nó không được dùng trong logic này
+    }, [navigate]);
 
-    // Hàm cập nhật tên
     const handleNameUpdate = async (e) => {
         e.preventDefault();
         try {
-            // ✅ 3. Dùng 'api.put'
-            const res = await api.put('/users/profile', { name });
+            // ✅ 4. Dùng axiosInstance, code gọn gàng hơn rất nhiều
+            const res = await axiosInstance.put('/users/profile', { name });
             setUser(res.data);
+            localStorage.setItem('user', JSON.stringify(res.data)); // Cập nhật lại localStorage
             alert('Cập nhật tên thành công!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Cập nhật tên thất bại.');
+            console.error('Lỗi cập nhật tên:', err);
+            alert('Cập nhật tên thất bại.');
         }
     };
 
-    // Hàm upload avatar
     const handleAvatarUpload = async (e) => {
         e.preventDefault();
-        if (!file) return alert('Vui lòng chọn ảnh!');
+        if (!file) {
+            alert('Vui lòng chọn một file ảnh!');
+            return;
+        }
         setUploading(true);
+
         const formData = new FormData();
         formData.append('avatar', file);
 
-        try {
-            // ✅ 4. Dùng 'api.put' và chỉ cần set Content-Type
-            const res = await api.put('/users/profile/avatar', formData, {
+        try {//             // ✅ 5. Dùng axiosInstance cho cả việc upload file
+            const res = await axiosInstance.post('/users/avatar', formData, {
+                // Header 'Content-Type' vẫn cần thiết cho việc upload file
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            setUser(prev => ({ ...prev, avatar: res.data.avatarUrl }));
-            alert(res.data.message);
+            alert('Upload avatar thành công!');
+            
+            // ✅ 6. Cập nhật lại state và localStorage với avatar URL mới
+            const updatedUser = { ...user, avatar: res.data.avatar };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            
         } catch (err) {
             alert(err.response?.data?.message || 'Upload thất bại.');
         } finally {
             setUploading(false);
+            setFile(null);
         }
     };
 
-    if (loading) return <div>Đang tải...</div>;
+    if (loading && !user) return <div>Đang tải...</div>;
     if (error) return <div style={{ color: 'red' }}>{error}</div>;
-    if (!user) return <div>Không có thông tin người dùng.</div>;
+    if (!user) return <div>Không có thông tin người dùng. Vui lòng đăng nhập.</div>;
 
-    // ... (Phần JSX return giữ nguyên như cũ)
     return (
         <div>
             <h2>Trang cá nhân</h2>
+            
             <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                 <img 
-                    src={user.avatar}alt="Avatar" 
+                    src={user.avatar} 
+                    alt="Avatar" 
                     width="150" 
                     height="150"
                     style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid #ddd' }} 
@@ -297,7 +451,9 @@ const Profile = () => {
                     </button>
                 </form>
             </div>
+            
             <hr />
+
             <p><strong>Email:</strong> {user.email}</p>
             <form onSubmit={handleNameUpdate}>
                 <label><strong>Tên:</strong></label>
