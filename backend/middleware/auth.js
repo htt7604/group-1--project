@@ -79,7 +79,7 @@ module.exports = function (req, res, next) {
 
 //b6 hd1
 // backend/middleware/auth.js
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 
 module.exports = function(req, res, next) {
     // Lấy token từ header của request
