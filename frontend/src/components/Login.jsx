@@ -338,7 +338,7 @@ const Login = () => {
         <form onSubmit={onSubmit}>
             <h2>Đăng Nhập</h2>
             <input type="email" name="email" value={formData.email} onChange={onChange} placeholder="Email" required />
-            <input type_password="password" name="password" value={formData.password} onChange={onChange} placeholder="Mật khẩu" required />
+            <input type="password" name="password" value={formData.password} onChange={onChange} placeholder="Mật khẩu" required />
             
             {/* 6. Hiển thị lỗi từ Redux state */}
             {status === 'failed' && <p style={{ color: 'red' }}>{error}</p>}
