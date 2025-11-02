@@ -1,4 +1,4 @@
-Mô tả dự án: Wed quản lý thông tin người dùng đơn giản kết hợp MongoDB
+Mô tả dự án: Web quản lý thông tin người dùng đơn giản kết hợp MongoDB
 Công nghệ: MongoDB , nodeJS, react
 Hướng dân chạy:
         B1: Chạy server bằng lệnh : node server.js
