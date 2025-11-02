@@ -246,50 +246,52 @@ const AdminDashboard = () => {
         }
     };
     
-    if (loading) return <div>Đang tải danh sách người dùng...</div>;
+    if (loading) return <div className="no-data">Đang tải danh sách người dùng...</div>;
 
     return (
-        <div>
-            <h2>Quản lý người dùng</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tên</th>
-                        <th>Email</th>
-                        <th>Vai trò</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => {
-                        // ✅ SỬA LỖI: So sánh user._id với currentUser.id
-                        const isDeleteDisabled = 
-                            (user.role === 'admin' && currentUser?.role === 'moderator') || 
-                            (user._id === currentUser?.id);
+        <div className="admin-dashboard">
+            <div className="admin-card">
+                <h2>Quản lý người dùng</h2>
+                <table className="users-table">
+                    <thead>
+                        <tr>
+                            <th>Tên</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {users.map(user => {
+                            // ✅ SỬA LỖI: So sánh user._id với currentUser.id
+                            const isDeleteDisabled = 
+                                (user.role === 'admin' && currentUser?.role === 'moderator') || 
+                                (user._id === currentUser?.id);
 
-                        return (
-                            <tr key={user._id}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>
-                                    < button onClick={() => handleDelete(user._id)} 
-                                        style={{ 
-                                            marginRight: '5px', 
-                                            backgroundColor: isDeleteDisabled ? '#6c757d' : '#dc3545',
-                                            cursor: isDeleteDisabled ? 'not-allowed' : 'pointer'
-                                        }}
-                                        disabled={isDeleteDisabled}
-                                    >
-                                        Xóa
-                                    </button>
-                                    <button onClick={() => handleResetPassword(user.email)} style={{backgroundColor: '#ffc107'}}>Reset Mật khẩu</button>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                            return (
+                                <tr key={user._id}>
+                                    <td>{user.name}</td>
+                                    <td>{user.email}</td>
+                                    <td>{user.role}</td>
+                                    <td>
+                                        <div className="table-actions">
+                                            <button
+                                                onClick={() => handleDelete(user._id)}
+                                                className={`btn btn-danger ${isDeleteDisabled ? 'disabled' : ''}`}
+                                                disabled={isDeleteDisabled}
+                                            >
+                                                Xóa
+                                            </button>
+                                            <button onClick={() => handleResetPassword(user.email)} className="btn btn-warning">Reset Mật khẩu</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+                {users.length === 0 && <div className="no-data">Không có người dùng nào.</div>}
+            </div>
         </div>
     );
 };
